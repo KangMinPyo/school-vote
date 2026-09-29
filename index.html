@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학교 회장 선거 무기명 투표</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; box-sizing: border-box; }
+        h1 { text-align: center; color: #1a73e8; margin-bottom: 5px; }
+        .guide { text-align: center; color: #666; margin-bottom: 25px; font-size: 15px; }
+        
+        .candidates { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .candidate-card { display: flex; align-items: center; border: 2px solid #ddd; border-radius: 10px; padding: 12px; cursor: pointer; transition: 0.2s; }
+        .candidate-card:hover { border-color: #1a73e8; background: #f8f9fa; }
+        .candidate-card input { margin-right: 15px; width: 20px; height: 20px; }
+        .candidate-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #eee; margin-right: 15px; }
+        .candidate-info h3 { margin: 0 0 5px 0; font-size: 18px; color: #222; }
+        .candidate-info p { margin: 0; font-size: 13px; color: #666; }
+        
+        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #1557b0; }
+        
+        #success-screen { display: none; text-align: center; padding: 40px 0; }
+        #success-screen h2 { color: #2e7d32; font-size: 26px; margin-bottom: 10px; }
+        #success-screen p { color: #666; font-size: 16px; }
+        .restart-btn { margin-top: 20px; padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 투표 화면 -->
+    <div id="voting-screen">
+        <h1>학생회장 선거 (무기명 투표)</h1>
+        <div class="guide">마음에 드는 후보를 선택하고 투표하기를 누르면 익명으로 안전하게 기록됩니다.</div>
+
+        <form id="voteForm" onsubmit="handleVote(event)">
+            <label>후보자 선택</label>
+            <div class="candidates">
+                <label class="candidate-card">
+                    <input type="radio" name="candidate" value="기호 1번 홍길동" required>
+                    <img src="https://via.placeholder.com/60" alt="후보1" class="candidate-img">
+                    <div class="candidate-info">
+                        <h3>기호 1번: 홍길동</h3>
+                        <p>공약: 학교 축제 확대 및 매점 간식 다양화!</p>
+                    </div>
+                </label>
+
+                <label class="candidate-card">
+                    <input type="radio" name="candidate" value="기호 2번 김철수">
+                    <img src="https://via.placeholder.com/60" alt="후보2" class="candidate-img">
+                    <div class="candidate-info">
+                        <h3>기호 2번: 김철수</h3>
+                        <p>공약: 체육대회 종목 추가 및 휴게실 개선!</p>
+                    </div>
+                </label>
+            </div>
+
+            <button type="submit">투표하기</button>
+        </form>
+    </div>
+
+    <!-- 제출 완료 화면 -->
+    <div id="success-screen">
+        <h2>🎉 소중한 투표가 완료되었습니다!</h2>
+        <p>익명으로 안전하게 반영되었습니다.</p>
+        <button class="restart-btn" onclick="resetForm()">다음 투표자 진행하기</button>
+    </div>
+</div>
+
+<script>
+    // [중요] 새로 발급받은 웹 앱 URL을 여기에 넣으세요!
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoivQuoZS4ml1loJQzRT3g3QkGPViFugkCfQ518cSabDnRBz3gJcNvw80WiyV5RQbO/exec";
+
+    function handleVote(event) {
+        event.preventDefault();
+
+        const selectedRadio = document.querySelector('input[name="candidate"]:checked');
+        
+        if (!selectedRadio) {
+            alert("투표할 후보자를 선택해 주세요!");
+            return;
+        }
+        
+        const selectedCandidate = selectedRadio.value;
+
+        // 1. 제출 순간 자동 효과음 재생
+        const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+        audio.volume = 1.0;
+        audio.play().catch(error => {
+            console.log("오디오 재생 제한 무시됨: ", error);
+        });
+
+        // 2. 화면 즉시 전환
+        document.getElementById('voting-screen').style.display = 'none';
+        document.getElementById('success-screen').style.display = 'block';
+
+        // 3. 구글 스프레드시트로 익명 데이터 전송
+        if (SCRIPT_URL && SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwoivQuoZS4ml1loJQzRT3g3QkGPViFugkCfQ518cSabDnRBz3gJcNvw80WiyV5RQbO/exec") {
+            const payload = JSON.stringify({ candidate: selectedCandidate });
+            
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: payload
+            }).catch(err => {
+                console.log("시트 전송 완료", err);
+            });
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('voteForm').reset();
+        document.getElementById('success-screen').style.display = 'none';
+        document.getElementById('voting-screen').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
