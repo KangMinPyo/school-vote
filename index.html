@@ -70,14 +70,13 @@
 </div>
 
 <script>
-    // [중요] 새로 발급받은 웹 앱 URL을 여기에 넣으세요!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoivQuoZS4ml1loJQzRT3g3QkGPViFugkCfQ518cSabDnRBz3gJcNvw80WiyV5RQbO/exec";
+    // [중요] 새로 배포한 웹 앱 URL을 여기에 넣으세요!
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxS_paWxKcgxkSVQT6cAaea-5z2syKkKlY87qzuhR-1L1wgOb2FSu1zq9yTy7LJ_5CJ/exec";
 
     function handleVote(event) {
         event.preventDefault();
 
         const selectedRadio = document.querySelector('input[name="candidate"]:checked');
-        
         if (!selectedRadio) {
             alert("투표할 후보자를 선택해 주세요!");
             return;
@@ -96,19 +95,20 @@
         document.getElementById('voting-screen').style.display = 'none';
         document.getElementById('success-screen').style.display = 'block';
 
-        // 3. 구글 스프레드시트로 익명 데이터 전송
-        if (SCRIPT_URL && SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwoivQuoZS4ml1loJQzRT3g3QkGPViFugkCfQ518cSabDnRBz3gJcNvw80WiyV5RQbO/exec") {
-            const payload = JSON.stringify({ candidate: selectedCandidate });
-            
+        // 3. 네비게이터(sendBeacon 또는 fetch)를 이용해 확실하게 신호 쏘기
+        if (SCRIPT_URL && SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbxS_paWxKcgxkSVQT6cAaea-5z2syKkKlY87qzuhR-1L1wgOb2FSu1zq9yTy7LJ_5CJ/exec") {
+            const formData = new URLSearchParams();
+            formData.append('candidate', selectedCandidate);
+
+            // CORS 에러에 구애받지 않고 백그라운드 전송이 확실한 방식
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: payload
+                body: formData
+            }).then(() => {
+                console.log("전송 요청 완료");
             }).catch(err => {
-                console.log("시트 전송 완료", err);
+                console.log("전송 에러 무시: ", err);
             });
         }
     }
