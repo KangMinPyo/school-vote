@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>구글 시트 통신 테스트</title>
+</head>
+<body>
+    <h2>구글 시트 연결 테스트 페이지</h2>
+    <button onclick="sendTest()">시트에 데이터 쏘기</button>
+    <p id="result" style="font-weight: bold; color: blue;"></p>
+
+    <script>
+        // 여기에 복사한 웹 앱 URL을 넣으세요
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJTPGyhO_D6UA-vB02IClG7YRvZXCUP7lSkmlRvjgP6vspggSjxqJ3HYDNMmBuG-tJ/exec";
+
+        function sendTest() {
+            document.getElementById('result').innerText = "전송 중...";
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // CORS 에러 무시하고 던지기
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ test: "hello" })
+            })
+            .then(response => {
+                document.getElementById('result').innerText = "전송 요청 완료! 시트를 확인해보세요.";
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = "에러 발생: " + error;
+            });
+        }
+    </script>
+</body>
+</html>
