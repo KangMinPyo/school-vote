@@ -41,10 +41,10 @@
             <div class="candidates">
                 <!-- [수정 가능] 기호 1번 -->
                 <label class="candidate-card">
-                    <input type="radio" name="candidate" value="기호 1번 홍길동" required>
+                    <input type="radio" name="candidate" value="기호 1번 김지은" required>
                     <img src="https://via.placeholder.com/60" alt="후보1" class="candidate-img">
                     <div class="candidate-info">
-                        <h3>기호 1번: 홍길동</h3>
+                        <h3>기호 1번: 김지은</h3>
                         <p>공약: 학교 축제 확대 및 매점 간식 다양화!</p>
                     </div>
                 </label>
@@ -91,7 +91,7 @@
         submitBtn.innerText = "제출 중...";
 
         // 1. 제출 순간 자동 효과음 재생 (웅장한 팡파레)
-        const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+        const audio = new Audio('https://kangminpyo.github.io/school-vote/audio1.wav');
         audio.volume = 1.0;
         audio.play().catch(error => {
             console.log("오디오 재생 제한 무시됨: ", error);
