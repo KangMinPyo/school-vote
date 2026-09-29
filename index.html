@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>학교 회장 선거 무기명 투표</title>
+    <title>양영중 학교 회장 선거 투표</title>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; box-sizing: border-box; }
@@ -32,10 +32,11 @@
 <div class="container">
     <!-- 투표 화면 -->
     <div id="voting-screen">
-        <h1>학생회장 선거.</h1>
+        <h1>양영중 학생회장 선거</h1>
         <div class="guide">마음에 드는 후보를 선택하고 투표하기를 누르면 익명으로 안전하게 기록됩니다.</div>
 
-        <form id="voteForm" onsubmit="handleVote(event)">
+        <!-- action에 구글 웹 앱 URL을 넣고, target을 hidden_iframe으로 지정하여 페이지가 안 넘어가고 백그라운드로 전송되게 합니다 -->
+        <form id="voteForm" method="POST" action="여기에_새로_발급받은_웹앱_URL을_넣으세요" target="hidden_iframe" onsubmit="handleVote(event)">
             <label>후보자 선택</label>
             <div class="candidates">
                 <label class="candidate-card">
@@ -65,58 +66,34 @@
     <div id="success-screen">
         <h2>🎉 소중한 투표가 완료되었습니다!</h2>
         <p>익명으로 안전하게 반영되었습니다.</p>
-        <button class="restart-btn" onclick="resetForm()">다음 투표자 진행하기</button>
+        <button class="restart-btn" onclick="window.location.reload();">다음 투표자 진행하기</button>
     </div>
 </div>
 
+<!-- 눈에 보이지 않는 백그라운드 통신 프레임 -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
 <script>
-    // [중요] 새로 배포한 웹 앱 URL을 여기에 넣으세요!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxS_paWxKcgxkSVQT6cAaea-5z2syKkKlY87qzuhR-1L1wgOb2FSu1zq9yTy7LJ_5CJ/exec";
-
     function handleVote(event) {
-        event.preventDefault();
-
         const selectedRadio = document.querySelector('input[name="candidate"]:checked');
         if (!selectedRadio) {
+            event.preventDefault();
             alert("투표할 후보자를 선택해 주세요!");
             return;
         }
-        
-        const selectedCandidate = selectedRadio.value;
 
-        // 1. 제출 순간 자동 효과음 재생
+        // 1. 제출 순간 자동 효과음 쾅 재생!
         const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
         audio.volume = 1.0;
         audio.play().catch(error => {
             console.log("오디오 재생 제한 무시됨: ", error);
         });
 
-        // 2. 화면 즉시 전환
-        document.getElementById('voting-screen').style.display = 'none';
-        document.getElementById('success-screen').style.display = 'block';
-
-        // 3. 네비게이터(sendBeacon 또는 fetch)를 이용해 확실하게 신호 쏘기
-        if (SCRIPT_URL && SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbxS_paWxKcgxkSVQT6cAaea-5z2syKkKlY87qzuhR-1L1wgOb2FSu1zq9yTy7LJ_5CJ/exec") {
-            const formData = new URLSearchParams();
-            formData.append('candidate', selectedCandidate);
-
-            // CORS 에러에 구애받지 않고 백그라운드 전송이 확실한 방식
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: formData
-            }).then(() => {
-                console.log("전송 요청 완료");
-            }).catch(err => {
-                console.log("전송 에러 무시: ", err);
-            });
-        }
-    }
-
-    function resetForm() {
-        document.getElementById('voteForm').reset();
-        document.getElementById('success-screen').style.display = 'none';
-        document.getElementById('voting-screen').style.display = 'block';
+        // 2. 화면 즉시 전환 (폼은 백그라운드에서 구글 시트로 데이터를 보냅니다)
+        setTimeout(() => {
+            document.getElementById('voting-screen').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'block';
+        }, 200);
     }
 </script>
 
